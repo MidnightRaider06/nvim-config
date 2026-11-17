@@ -159,7 +159,12 @@ rtp:prepend(lazypath)
 -- [[ Configure and install plugins ]]
 require('lazy').setup({
   -- NOTE: Plugins can be added via a link or github org/name. To run setup automatically, use `opts = {}`
-  { 'NMAC427/guess-indent.nvim', opts = {} },
+  { 
+    'NMAC427/guess-indent.nvim',
+    opts = {
+      filetype_exclude = { 'c', 'cpp' },
+    },
+  },
 
   {
     'ThePrimeagen/harpoon',
@@ -780,8 +785,6 @@ require('lazy').setup({
         -- in case there is no indent query, the indentexpr will fallback to the vim's built in one
         local has_indent_query = vim.treesitter.query.get(language, 'indents') ~= nil
 
-        -- enables treesitter based indentation
-        if has_indent_query then vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()" end
       end
 
       local available_parsers = require('nvim-treesitter').get_available()
@@ -848,4 +851,28 @@ require('lazy').setup({
       lazy = '💤 ',
     },
   },
+})
+
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { 'c', 'cpp' },
+  callback = function(event)
+    vim.schedule(function()
+      if not vim.api.nvim_buf_is_valid(event.buf) then
+        return
+      end
+
+      local o = vim.bo[event.buf]
+
+      o.indentexpr = ''      -- Disable Treesitter indentation
+      o.cindent = true       -- Use Neovim's C-style indentation
+      o.smartindent = false
+
+      o.expandtab = false    -- Insert actual tab characters
+      o.tabstop = 8          -- Display tabs as 4 columns
+      o.shiftwidth = 8       -- Indent by 4 columns
+      o.softtabstop = 0      -- Let Tab insert an actual tab
+
+      o.cinoptions = 'f0'    -- Align function opening braces
+    end)
+  end,
 })
