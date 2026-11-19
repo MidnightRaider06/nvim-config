@@ -868,11 +868,20 @@ vim.api.nvim_create_autocmd('FileType', {
       o.smartindent = false
 
       o.expandtab = false    -- Insert actual tab characters
-      o.tabstop = 8          -- Display tabs as 4 columns
-      o.shiftwidth = 8       -- Indent by 4 columns
+      o.tabstop = 8          -- Display tabs as 8 columns
+      o.shiftwidth = 8       -- Indent by 8 columns
       o.softtabstop = 0      -- Let Tab insert an actual tab
 
       o.cinoptions = 'f0'    -- Align function opening braces
+
     end)
+  end,
+})
+
+-- Disable the automatic comment continuation crap for c and cpp
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { 'c', 'cpp' },
+  callback = function()
+    vim.opt_local.formatoptions:remove({ 'c', 'r', 'o' })
   end,
 })
